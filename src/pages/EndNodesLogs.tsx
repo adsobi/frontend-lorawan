@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import StickyHeadTable, { Column } from "../components/StickyHeadTable";
-import Table from "../components/Table";
 import { GetEndNodeLogs } from "../services/endpoints";
+
 const EndNodesLogs: React.FC = () => {
-  // const currentUser = getCurrentUser();
-  const [loading, setLoading] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
-  const navigate = useNavigate();
-  const appId = useParams();
+  const params = useParams();
 
   useEffect(() => {
-    GetEndNodeLogs().then(
+    GetEndNodeLogs(params.id).then(
       (response) => {
         setContent(response.data);
       },
@@ -28,35 +25,31 @@ const EndNodesLogs: React.FC = () => {
   }, []);
 
   const columns: Column[] = [
-    { id: 'name', label: 'Nazwa', minWidth: 170 },
-    { id: 'endDeviceNumber', label: 'Liczba urządzeń końcowych', align: 'center', minWidth: 100 },
-    {
-      id: 'createdAt',
-      label: 'Utworzono',
-      minWidth: 170,
-      align: 'right',
-      format: (value: number) => value.toLocaleString('pl-PL'),
-    },
+    { id: 'time', label: 'Czas', minWidth: 170 },
+    { id: 'type', label: 'Typ zdarzenia', minWidth: 100 },
+    { id: 'data', label: 'Dane', minWidth: 200, align: 'center' },
   ];
 
   interface Data {
     id: number,
-    name: string;
-    endDeviceNumber: number;
-    createdAt: string
+    time: string,
+    type: string,
+    data: string
   }
 
   function createData(
     id: number,
-    name: string,
-    endDeviceNumber: number,
-    createdAt: string
+    time: string,
+    type: string,
+    data: string
   ): Data {
-    return { id, name, endDeviceNumber, createdAt};
+    return { id, time, type, data};
   }
 
   const rows = [
-    createData(1,'test-app-for-lorawan', 2, '2022-06-21 15:21:23'),
+    createData(1,'2022-06-21 15:21:23', 'JoinRequest', ''),
+    createData(2,'2022-06-21 15:21:24', 'JoinAccept', ''),
+    createData(3,'2022-06-21 15:21:25', 'Uplink', '{"delay": 5000, "0": 23.4 }'),
   ];
 
   return (

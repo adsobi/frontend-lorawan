@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
 import StickyHeadTable, { Column } from "../components/StickyHeadTable";
-import { GetApplications } from "../services/endpoints";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { DeleteApplication, GetApplications } from "../services/endpoints";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "react-bootstrap";
 
 const Applications: React.FC = () => {
-  // const currentUser = getCurrentUser();
 
-  const [loading, setLoading] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
   const navigate = useNavigate();
-  const appId = useParams();
 
   useEffect(() => {
     GetApplications().then(
@@ -31,34 +28,41 @@ const Applications: React.FC = () => {
 
   const columns: Column[] = [
     { id: 'name', label: 'Nazwa', minWidth: 170 },
-    { id: 'endDeviceNumber', label: 'Liczba urządzeń końcowych', align: 'center', minWidth: 100 },
-    {
-      id: 'createdAt',
-      label: 'Utworzono',
-      minWidth: 170,
-      align: 'right',
-      format: (value: number) => value.toLocaleString('pl-PL'),
-    },
+    { id: 'description', label: 'Opis', minWidth: 170 },
+    { id: 'appKey', label: 'Klucz aplikacji', align: 'center', minWidth: 100 },
+    { id: 'endDeviceAmount', label: 'Liczba urządzeń końcowych', align: 'center', minWidth: 170 },
+    { id: 'createdAt', label: 'Utworzono', minWidth: 170 },
+    { id: 'deleteButton', label: 'Usuwanie', align: 'right', minWidth: 100 },
   ];
 
   interface Data {
     id: number,
     name: string;
-    endDeviceNumber: number;
-    createdAt: string
+    description: string,
+    appKey: string,
+    endDeviceAmount: number;
+    createdAt: string,
+    deleteButton: JSX.Element
+  }
+
+  const DeleteButton = (id: number) => {
+    return <Button onClick={ () => { DeleteApplication(id)} }>Usuń</Button>
   }
 
   function createData(
     id: number,
     name: string,
-    endDeviceNumber: number,
-    createdAt: string
+    description: string,
+    appKey: string,
+    endDeviceAmount: number,
+    createdAt: string,
+    deleteButton: JSX.Element
   ): Data {
-    return { id, name, endDeviceNumber, createdAt};
+    return { id, name, description, endDeviceAmount, appKey, createdAt, deleteButton};
   }
 
   const rows = [
-    createData(1,'test-app-for-lorawan', 2, '2022-06-21 15:21:23'),
+    createData(1,'test-app-for-lorawan', 'Aplikacja testowa', '7CB49F63AC807CED46D681D539B40F09', 2, '2022-06-21 15:21:23', DeleteButton(1)),
   ];
 
   return (

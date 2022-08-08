@@ -11,7 +11,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token !== null) { navigate('/'); }
+    if (token !== null) { navigate('/applications'); }
   }, [token]);
 
   const initialValues: {

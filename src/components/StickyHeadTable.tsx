@@ -9,7 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useNavigate } from 'react-router-dom';
 
-interface Props {
+type Props = {
   rows:  { [key: string]: any }[],
   columns: Column[],
   path?: string,
@@ -46,7 +46,7 @@ const StickyHeadTable: React.FC<Props> = (props) => {
                 <TableCell
                   key={column.id}
                   align={column.align}
-                  style={{ minWidth: column.minWidth }}
+                  sx={{ minWidth: column.minWidth, fontWeight: 'bold' }}
                 >
                   {column.label}
                 </TableCell>
