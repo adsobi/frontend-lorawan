@@ -23,7 +23,8 @@ export const CreateEndNode = async (
   description: string,
   joinEUI: string,
   devEUI: string,
-  downlinkInvoke: number
+  downlinkInvoke: number,
+  applicationId: string
   ) => {
     return await axios.post(process.env.REACT_APP_BACKEND_URL + "create", {
       name,
@@ -31,6 +32,7 @@ export const CreateEndNode = async (
       joinEUI,
       devEUI,
       downlinkInvoke,
+      applicationId,
     }
   );
 };
@@ -41,11 +43,12 @@ export const GetGateways = async () => {
 export const DeleteGateway = async (id: number) => {
   return await axios.delete<ObjectWithId>(process.env.REACT_APP_BACKEND_URL + "gateways/" + id, { headers: AuthHeader() });
 };
-export const CreateGateway = async (username: string, email: string, password: string) => {
+export const CreateGateway = async (name: string, description: string, gatewayEUI: string, applicationId: string) => {
   return await axios.post(process.env.REACT_APP_BACKEND_URL + "create", {
-    username,
-    email,
-    password,
+    name,
+    description,
+    gatewayEUI,
+    applicationId,
   });
 };
 
@@ -64,7 +67,7 @@ export const CreateApplication = async (
     return await axios.post(process.env.REACT_APP_BACKEND_URL + "create", {
       name,
       description,
-      appKey
+      appKey,
     }
   );
 };

@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { CreateEndNode } from "../services/endpoints";
+import { Button } from "react-bootstrap";
 
 const EndNodeCreate: React.FC = () => {
   const [successful, setSuccessful] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   type IApplicationCreate = {
     name: string,
+    applicationId: string,
     description: string,
     joinEUI: string,
     devEUI: string,
@@ -15,6 +17,7 @@ const EndNodeCreate: React.FC = () => {
   };
   const initialValues: IApplicationCreate = {
     name: "",
+    applicationId: "",
     description: "",
     joinEUI: "",
     devEUI: "",
@@ -41,12 +44,14 @@ const EndNodeCreate: React.FC = () => {
           val.toString().length == 16
       )
       .required("To pole jest wymagane!"),
+    applicationId: Yup.string()
+      .required("To pole jest wymagane!"),
     downlinkInvoke: Yup.string()
       .required("To pole jest wymagane!"),
   });
   const handleCreate = (formValue: IApplicationCreate) => {
-    const { name, description, joinEUI, devEUI, downlinkInvoke } = formValue;
-    CreateEndNode(name, description, joinEUI, devEUI, downlinkInvoke).then(
+    const { name, description, joinEUI, devEUI, downlinkInvoke, applicationId } = formValue;
+    CreateEndNode(name, description, joinEUI, devEUI, downlinkInvoke, applicationId).then(
       (response) => {
         setMessage(response.data.message);
         setSuccessful(true);
@@ -72,6 +77,7 @@ const EndNodeCreate: React.FC = () => {
           validationSchema={validationSchema}
           onSubmit={handleCreate}
         >
+          {({ setFieldValue }) => (
           <Form>
             {!successful && (
               <div>
@@ -85,8 +91,23 @@ const EndNodeCreate: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
+                  <label htmlFor="applicationId">Aplikacja <span className="text-danger">*</span></label>
+                  <Field name="applicationId" as="select" className="form-control">
+                    <option value="" selected>-</option>
+                    <option value="1">test-app-for-lorawan</option>
+                  </Field>
+                  <ErrorMessage
+                    name="applicationId"
+                    component="div"
+                    className="alert alert-danger mt-1"
+                  />
+                </div>
+                <div className="form-group">
                   <label htmlFor="joinEUI">JoinEUI <span className="text-danger">*</span></label>
-                  <Field name="joinEUI" type="text" className="form-control" />
+                  <div className="d-flex">
+                      <Field name="joinEUI" type="text" className="form-control" />
+                      <Button className="ms-2" onClick={() => setFieldValue('joinEUI', '0000000000000000')} >Wyzeruj</Button>
+                    </div>
                   <ErrorMessage
                     name="joinEUI"
                     component="div"
@@ -138,6 +159,7 @@ const EndNodeCreate: React.FC = () => {
               </div>
             )}
           </Form>
+          )}
         </Formik>
       </div>
     </div>

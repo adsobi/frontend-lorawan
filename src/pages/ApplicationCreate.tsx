@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { CreateApplication } from "../services/endpoints";
+import generateKey from "../features/key";
+import { Button } from "react-bootstrap";
 
 const ApplicationCreate: React.FC = () => {
   const [successful, setSuccessful] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+
   type IApplicationCreate = {
     name: string,
     description: string,
@@ -57,6 +60,7 @@ const ApplicationCreate: React.FC = () => {
           validationSchema={validationSchema}
           onSubmit={handleCreate}
         >
+          {({ setFieldValue }) => (
           <Form>
             {!successful && (
               <div>
@@ -71,7 +75,10 @@ const ApplicationCreate: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label htmlFor="appKey">Klucz aplikacji <span className="text-danger">*</span></label>
-                  <Field name="appKey" type="text" className="form-control" />
+                  <div className="d-flex">
+                      <Field name="appKey" type="text" className="form-control" />
+                      <Button className="ms-2" onClick={() => setFieldValue('appKey', generateKey(32))} >Generuj</Button>
+                    </div>
                   <ErrorMessage
                     name="appKey"
                     component="div"
@@ -105,6 +112,7 @@ const ApplicationCreate: React.FC = () => {
               </div>
             )}
           </Form>
+          )}
         </Formik>
       </div>
     </div>
