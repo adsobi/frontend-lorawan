@@ -6,22 +6,23 @@ import { Button } from "react-bootstrap";
 
 const Applications: React.FC = () => {
 
-  const [content, setContent] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [rows, setRows] = useState<[{[key:string]: any}]>([{}]);
   const navigate = useNavigate();
 
   useEffect(() => {
     GetApplications().then(
       (response) => {
-        setContent(response.data);
+        setRows(response.data.data.map((obj: any) => { return createData(obj.id, obj.name, obj.description, obj.key, obj.end_node_count, obj.created_at, DeleteButton(obj.id))}))
       },
       (error) => {
-        const _content =
+        const message =
           (error.response &&
             error.response.data &&
             error.response.data.message) ||
           error.message ||
           error.toString();
-        setContent(_content);
+        setErrorMessage(message);
       }
     );
   }, []);
@@ -46,7 +47,7 @@ const Applications: React.FC = () => {
   }
 
   const DeleteButton = (id: number) => {
-    return <Button onClick={ () => { DeleteApplication(id)} }>Usuń</Button>
+    return <Button onClick={ () => { DeleteApplication(id).then(() => window.location.reload()) }}>Usuń</Button>
   }
 
   function createData(
@@ -60,10 +61,6 @@ const Applications: React.FC = () => {
   ): Data {
     return { id, name, description, endDeviceAmount, appKey, createdAt, deleteButton};
   }
-
-  const rows = [
-    createData(1,'test-app-for-lorawan', 'Aplikacja testowa', '7CB49F63AC807CED46D681D539B40F09', 2, '2022-06-21 15:21:23', DeleteButton(1)),
-  ];
 
   return (
     <div>

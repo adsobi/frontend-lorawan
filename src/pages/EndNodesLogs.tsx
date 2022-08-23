@@ -1,3 +1,4 @@
+import { compose } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import StickyHeadTable, { Column } from "../components/StickyHeadTable";
@@ -6,12 +7,15 @@ import { GetEndNodeLogs } from "../services/endpoints";
 const EndNodesLogs: React.FC = () => {
   const [content, setContent] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [rows, setRows] = useState<[{[key:string]: any}]>([{}]);
   const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     GetEndNodeLogs(params.id).then(
       (response) => {
-        setContent(response.data);
+        setRows(response.data.data.map((obj: any) => { return createData(obj.id, obj.created_at, obj.type, obj.snr, obj.rssi, obj.data)}))
+        setName(response.data.data[0].end_node.name);
       },
       (error) => {
         const _content =
@@ -63,14 +67,6 @@ const EndNodesLogs: React.FC = () => {
   ): Data {
     return { id, time, type, SNR, RSSI, data};
   }
-
-  const rows = [
-    createData(1,'2022-06-21 15:21:23', 'JoinRequest', '8.8','-30', ''),
-    createData(2,'2022-06-21 15:21:24', 'JoinAccept', '9.0', '-29', ''),
-    createData(3,'2022-06-21 15:21:25', 'Uplink', '8.1','-32','{"delay": 5000, "0": 23.4 }'),
-    createData(4,'2022-06-21 15:21:30', 'Uplink', '7.7','-30','{"delay": 5000, "0": 23.2 }'),
-    createData(5,'2022-06-21 15:21:35', 'Uplink', '10.1','-29','{"delay": 5000, "0": 23.3 }'),
-  ];
 
   return (
     <div>

@@ -3,33 +3,33 @@ import React, { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import StickyHeadTable, { Column } from "../components/StickyHeadTable";
-import { DeleteGateway, GetGateways, ObjectWithId } from "../services/endpoints";
+import { DeleteGateway, GetGateways } from "../services/endpoints";
 
 const Gateways: React.FC = () => {
-  const [content, setContent] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [rows, setRows] = useState<[{[key:string]: any}]>([{}]);
   const navigate = useNavigate();
 
   useEffect(() => {
     GetGateways().then(
       (response) => {
-        //setContent(response.data);
+        setRows(response.data.data.map((obj: any) => { return createData(obj.id, obj.name, obj.description, obj.gateway_eui, obj.last_activity, obj.created_at, DeleteButton(obj.id))}))
       },
       (error) => {
-        const _content =
+        const message =
           (error.response &&
             error.response.data &&
             error.response.data.message) ||
           error.message ||
           error.toString();
-        setContent(_content);
+          setErrorMessage(message);
       }
     );
-  }, [content]);
+  }, []);
 
   const columns: Column[] = [
     { id: 'name', label: 'Nazwa', minWidth: 120 },
     { id: 'description', label: 'Opis', minWidth: 100 },
-    { id: 'nameOfApplication', label: 'Nazwa aplikacji', minWidth: 170 },
     { id: 'gatewayEUI', label: 'Gateway EUI', minWidth: 100 },
     { id: 'lastActivity', label: 'Ostatnia aktywność', minWidth: 120 },
     { id: 'createdAt', label: 'Utworzono', minWidth: 120 },
@@ -40,7 +40,6 @@ const Gateways: React.FC = () => {
     id: number,
     name: string,
     description: string,
-    nameOfApplication: string,
     gatewayEUI: string,
     lastActivity: string,
     createdAt: string,
@@ -48,25 +47,20 @@ const Gateways: React.FC = () => {
   }
 
   const DeleteButton = (id: number) => {
-    return <Button onClick={ () => { DeleteGateway(id)} }>Usuń</Button>
+    return <Button onClick={ () => { DeleteGateway(id).then(() => navigate('gateways')) }}>Usuń</Button>
   }
 
   function createData(
     id: number,
     name: string,
     description: string,
-    nameOfApplication: string,
     gatewayEUI: string,
     lastActivity: string,
     createdAt: string,
     deleteButton: JSX.Element
   ): Data {
-    return { id, name, description, nameOfApplication, gatewayEUI, lastActivity, createdAt, deleteButton };
+    return { id, name, description, gatewayEUI, lastActivity, createdAt, deleteButton };
   }
-
-  const rows = [
-    createData(1,'bramka-test', 'Testowa bramka sieciowa', 'test-app-for-lorawan', '1DEE159413076858', '2022-08-21 15:21:23', '2022-06-21 15:21:23', DeleteButton(1))
-  ];
 
   return (
     <div>

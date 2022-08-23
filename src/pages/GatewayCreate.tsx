@@ -1,25 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Field, Form, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { CreateGateway } from "../services/endpoints";
 import { Button } from "react-bootstrap";
 import generateKey from "../features/key";
+import { useNavigate } from "react-router-dom";
 
 const GatewayCreate: React.FC = () => {
   const [successful, setSuccessful] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const navigate = useNavigate();
 
   type IGatewayCreate = {
     name: string,
     description: string,
     gatewayEUI: string,
-    applicationId: string
   };
   const initialValues: IGatewayCreate = {
     name: "",
     description: "",
     gatewayEUI: "",
-    applicationId: "",
   };
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -33,15 +33,14 @@ const GatewayCreate: React.FC = () => {
           return val &&
           val.toString().length == 16}
       ),
-    applicationId: Yup.string()
-      .required("To pole jest wymagane!"),
   });
   const handleCreate = (formValue: IGatewayCreate) => {
-    const { name, description, gatewayEUI, applicationId } = formValue;
-    CreateGateway(name, description, gatewayEUI, applicationId).then(
+    const { name, description, gatewayEUI } = formValue;
+    CreateGateway(name, description, gatewayEUI).then(
       (response) => {
-        setMessage(response.data.message);
+        setErrorMessage(response.data.message);
         setSuccessful(true);
+        navigate('gateways');
       },
       (error) => {
         const resMessage =
@@ -50,7 +49,7 @@ const GatewayCreate: React.FC = () => {
             error.response.data.message) ||
           error.message ||
           error.toString();
-        setMessage(resMessage);
+        setErrorMessage(resMessage);
         setSuccessful(false);
       }
     );
@@ -91,18 +90,6 @@ const GatewayCreate: React.FC = () => {
                     />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="applicationId">Aplikacja <span className="text-danger">*</span></label>
-                  <Field name="applicationId" as="select" className="form-control">
-                    <option value="" selected>-</option>
-                    <option value="1">test-app-for-lorawan</option>
-                  </Field>
-                  <ErrorMessage
-                    name="applicationId"
-                    component="div"
-                    className="alert alert-danger mt-1"
-                  />
-                </div>
-                <div className="form-group">
                   <label htmlFor="description">Opis </label>
                   <Field name="description" component="textarea" rows="4" className="form-control" placeholder="Opisz swoją aplikację" />
                   <ErrorMessage
@@ -116,7 +103,7 @@ const GatewayCreate: React.FC = () => {
                 </div>
               </div>
             )}
-            {message && (
+            {errorMessage && (
               <div className="form-group mt-2">
                 <div
                   className={
@@ -124,7 +111,7 @@ const GatewayCreate: React.FC = () => {
                   }
                   role="alert"
                 >
-                  {message}
+                  {errorMessage}
                 </div>
               </div>
             )}

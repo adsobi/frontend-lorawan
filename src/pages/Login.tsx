@@ -15,24 +15,24 @@ const Login: React.FC = () => {
   }, [token]);
 
   const initialValues: {
-    username: string;
+    email: string;
     password: string;
   } = {
-    username: "",
+    email: "",
     password: "",
   };
   const validationSchema = Yup.object().shape({
-    username: Yup.string().required("To pole jest wymagane!"),
+    email: Yup.string().required("To pole jest wymagane!"),
     password: Yup.string().required("To pole jest wymagane!"),
   });
-  const handleLogin = (formValue: { username: string; password: string }) => {
-    const { username, password } = formValue;
+  const handleLogin = async (formValue: { email: string; password: string }) => {
+    const { email, password } = formValue;
 
     setMessage("");
     setLoading(true);
-    onLogin(username, password).then(
-      () => {},
-      (error) => {
+
+    onLogin(email, password)
+      .catch((error) => {
         const resMessage =
           (error.response &&
             error.response.data &&
@@ -41,8 +41,7 @@ const Login: React.FC = () => {
           error.toString();
         setLoading(false);
         setMessage(resMessage);
-      }
-    );
+      });
   };
   return (
     <div className="col-md-12 item-align-center">
@@ -60,10 +59,10 @@ const Login: React.FC = () => {
         >
           <Form>
             <div className="form-group">
-              <label htmlFor="username">Login</label>
-              <Field name="username" type="text" className="form-control" />
+              <label htmlFor="email">Login</label>
+              <Field name="email" type="text" className="form-control" />
               <ErrorMessage
-                name="username"
+                name="email"
                 component="div"
                 className="alert alert-danger mt-1 p-2"
               />

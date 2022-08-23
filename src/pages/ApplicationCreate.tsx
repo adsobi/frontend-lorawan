@@ -4,10 +4,12 @@ import * as Yup from "yup";
 import { CreateApplication } from "../services/endpoints";
 import generateKey from "../features/key";
 import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const ApplicationCreate: React.FC = () => {
   const [successful, setSuccessful] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+  const navigate = useNavigate();
 
   type IApplicationCreate = {
     name: string,
@@ -36,8 +38,8 @@ const ApplicationCreate: React.FC = () => {
     const { name, description, appKey } = formValue;
     CreateApplication(name, description, appKey).then(
       (response) => {
-        setMessage(response.data.message);
         setSuccessful(true);
+        navigate('applications');
       },
       (error) => {
         const resMessage =

@@ -1,12 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { CreateEndNode } from "../services/endpoints";
+import { CreateEndNode, GetApplications } from "../services/endpoints";
 import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const EndNodeCreate: React.FC = () => {
   const [successful, setSuccessful] = useState<boolean>(false);
+  const [applications, setApplications] = useState<[{[key:string]: any}]>([{}]);
   const [message, setMessage] = useState<string>("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    GetApplications().then(
+      (response) => {
+        setApplications(response.data.data.map((obj: any) => { return { 'id': obj.id,'name': obj.name }}));
+      },
+      (error) => {
+        const message =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        setMessage(message);
+      }
+    );
+  }, []);
+
   type IApplicationCreate = {
     name: string,
     applicationId: string,
@@ -55,6 +76,7 @@ const EndNodeCreate: React.FC = () => {
       (response) => {
         setMessage(response.data.message);
         setSuccessful(true);
+        navigate('endnodes');
       },
       (error) => {
         const resMessage =
@@ -94,7 +116,7 @@ const EndNodeCreate: React.FC = () => {
                   <label htmlFor="applicationId">Aplikacja <span className="text-danger">*</span></label>
                   <Field name="applicationId" as="select" className="form-control">
                     <option value="" selected>-</option>
-                    <option value="1">test-app-for-lorawan</option>
+                    { applications.map((obj) => { return <option value={obj.id}>{obj.name}</option>})}
                   </Field>
                   <ErrorMessage
                     name="applicationId"

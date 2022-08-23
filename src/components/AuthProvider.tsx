@@ -1,15 +1,16 @@
+import axios from "axios";
 import React, { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom";
-import login from "../services/auth";
+import AuthHeader from "../services/auth-header";
 
 interface IContextProps {
-    token: string|null,
+    token: string | null,
     onLogin: (username: string, password: string) => Promise<void>,
     onLogout: () => void,
 }
 const AuthContext = React.createContext({} as IContextProps);
 
-const AuthProvider = ({ children } : { children: React.ReactNode}) => {
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [token, setToken] = useState<any>(null);
     const navigate = useNavigate();
@@ -20,15 +21,28 @@ const AuthProvider = ({ children } : { children: React.ReactNode}) => {
         }
     }, [])
 
-    const onLogin = async (username: string, password: string) => {
-        const responseToken = await login(username, password);
-        setToken(responseToken);
-        localStorage.setItem('token', responseToken);
+    const onLogin = (email: string, password: string) => {
+        return axios.post(process.env.REACT_APP_BACKEND_URL + "login", {
+            email,
+            password,
+        })
+            .then((response) => {
+                setToken(response.data.token);
+                localStorage.setItem('token', response.data.token);
+            }, (reject) => {
+                return Promise.reject(reject);
+            });
     }
     const onLogout = () => {
-        setToken(null);
-        localStorage.removeItem('token');
-        navigate('/login');
+        return axios.delete(process.env.REACT_APP_BACKEND_URL + "logout", { headers: AuthHeader() })
+            .then((response) => {
+                setToken(null);
+                localStorage.removeItem('token');
+                navigate('/login');
+            }).catch((error) => {
+                setToken(null);
+                localStorage.removeItem('token');
+            });
     }
 
     const auth: IContextProps = {

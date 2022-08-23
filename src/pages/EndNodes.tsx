@@ -5,23 +5,23 @@ import StickyHeadTable, { Column } from "../components/StickyHeadTable";
 import { DeleteEndNode, GetEndnodes } from "../services/endpoints";
 
 const EndNodes: React.FC = () => {
-
-  const [content, setContent] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [rows, setRows] = useState<[{[key:string]: any}]>([{}]);
   const navigate = useNavigate();
 
   useEffect(() => {
     GetEndnodes().then(
       (response) => {
-        setContent(response.data);
+        setRows(response.data.data.map((obj: any) => { return createData(obj.id, obj.name, obj.description, obj.app.name, obj.dev_eui, obj.join_eui, obj.count_to_response, obj.last_activity, DeleteButton(obj.id))}))
       },
       (error) => {
-        const _content =
+        const message =
           (error.response &&
             error.response.data &&
             error.response.data.message) ||
           error.message ||
           error.toString();
-        setContent(_content);
+          setErrorMessage(message);
       }
     );
   }, []);
@@ -50,7 +50,7 @@ const EndNodes: React.FC = () => {
   }
 
   const DeleteButton = (id: number) => {
-    return <Button onClick={() => { DeleteEndNode(id) }}>Usuń</Button>
+    return <Button onClick={(e) => { DeleteEndNode(id).then(() => navigate('/endnodes')) }}>Usuń</Button>
   }
 
   function createData(
@@ -69,13 +69,6 @@ const EndNodes: React.FC = () => {
       joinEUI, downlinkInvoke, lastActivity, deleteButton
     };
   }
-
-  const rows = [
-    createData(1, 'test-end-node', 'Testowe urządzenie końcowe 1', 'test-app-for-lorawan',
-      'E66118C4E326972C', '0000000000000000', 10, '2022-08-02 15:21:23', DeleteButton(1)),
-    createData(2, 'test-end-node-2', 'Testowe urządzenie końcowe 2', 'test-app-for-lorawan',
-      'E66118C4E32B5C29', '0000000000000000', 10, '2022-08-01 11:47:12', DeleteButton(2)),
-  ];
 
   return (
     <div>
